@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">📋 История ваших расчётов</h2>
+                
+                {% if not calculations %}
+                <div class="alert alert-info text-center">
+                    <h4>У вас ещё нет сохранённых расчётов</h4>
+                    <p>Выполните расчёт на <a href="{% url 'calculator:calculate' %}">странице калькулятора</a>, 
+                    чтобы сохранить его здесь.</p>
+                </div>
+                {% else %}
+                
+                <!-- Статистика -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4>{{ stats.total_investment|default:0|floatformat:0 }} руб.</h4>
+                                <p class="text-muted">Всего инвестировано</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4>{{ stats.total_saving_per_year|default:0|floatformat:0 }} руб./год</h4>
+                                <p class="text-muted">Общая годовая экономия</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4>{{ stats.avg_payback|default:0|floatformat:1 }} лет</h4>
+                                <p class="text-muted">Средняя окупаемость</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Таблица расчётов -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Регион</th>
+                                <th>Панель</th>
+                                <th>Кол-во</th>
+                                <th>Стоимость</th>
+                                <th>Окупаемость</th>
+                                <th>Экономия/год</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calc in calculations %}
+                            <tr>
+                                <td>{{ calc.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>{{ calc.region.name }}</td>
+                                <td>{{ calc.panel.name }}</td>
+                                <td>{{ calc.panel_count }}</td>
+                                <td>{{ calc.total_cost }} руб.</td>
+                                <td>{{ calc.payback_years }} лет</td>
+                                <td>{{ calc.yearly_saving }} руб.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Пагинация (можно добавить позже) -->
+                <div class="text-center mt-3">
+                    <a href="{% url 'calculator:calculate' %}" class="btn btn-success">
+                        Создать новый расчёт
+                    </a>
+                </div>
+                
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

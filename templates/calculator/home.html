@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card calculator-card">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">☀️ Калькулятор окупаемости солнечных панелей</h1>
+                <p class="lead text-center">
+                    Рассчитайте срок окупаемости солнечной электростанции для вашего дома
+                    на основе актуальных рыночных цен и региональных тарифов.
+                </p>
+                
+                <div class="text-center mt-4">
+                    <a href="{% url 'calculator:calculate' %}" class="btn btn-success btn-lg">
+                        Начать расчёт
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3>{{ total_calculations }}</h3>
+                        <p class="text-muted">выполнено расчётов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3>{{ avg_payback }} лет</h3>
+                        <p class="text-muted">средняя окупаемость</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3>{{ total_co2_saved|floatformat:0 }} кг</h3>
+                        <p class="text-muted">CO₂ сэкономлено</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Популярные панели -->
+        {% if popular_panels %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Самые популярные панели для расчётов</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for panel in popular_panels %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border p-3 rounded">
+                            <strong>{{ panel.name }}</strong><br>
+                            <small class="text-muted">
+                                {{ panel.manufacturer }} | 
+                                {{ panel.power_w }} Вт | 
+                                КПД: {{ panel.efficiency|floatformat:1 }}%
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card calculator-card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">{% if result %}Результаты расчёта{% else %}Калькулятор окупаемости{% endif %}</h2>
+                
+                <!-- Форма -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {{ field.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            {% if result %}Пересчитать{% else %}Рассчитать{% endif %}
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Результаты -->
+                {% if result %}
+                <div class="result-highlight mt-5">
+                    <h3 class="text-center mb-4">📊 Результаты вашего расчёта</h3>
+
+                    <!-- Детали расчёта -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Общая стоимость системы:</span>
+                                    <strong>{{ result.total_cost }} руб.</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Мощность системы:</span>
+                                    <strong>{{ result.system_power_kw }} кВт</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Годовая выработка:</span>
+                                    <strong>{{ result.yearly_production_kwh }} кВт·ч</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Годовая экономия:</span>
+                                    <strong>{{ result.yearly_saving }} руб./год</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Срок окупаемости:</span>
+                                    <strong>{{ result.payback_years }} лет</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Сэкономлено CO₂:</span>
+                                    <strong>{{ result.co2_saved_kg }} кг/год</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- График -->
+                    <div class="chart-container mt-4">
+                        <h5 class="text-center">График окупаемости</h5>
+                        <img src="data:image/png;base64,{{ result.roi_chart }}" 
+                             alt="График окупаемости" 
+                             class="img-fluid rounded">
+                    </div>
+                    
+                    {% if not user.is_authenticated %}
+                    <div class="alert alert-info mt-4 text-center">
+                        <strong>💡 Совет:</strong> 
+                        <a href="{% url 'admin:login' %}">Войдите в систему</a>, 
+                        чтобы сохранять ваши расчёты и просматривать их историю.
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
