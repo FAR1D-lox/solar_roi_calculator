@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card calculator-card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">🔐 Вход в систему</h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Имя пользователя</label>
+                        <input type="text" name="username" class="form-control" 
+                               id="id_username" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" 
+                               id="id_password" required>
+                    </div>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Неверное имя пользователя или пароль
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Войти
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <p>Нет аккаунта? <a href="{% url 'calculator:register' %}">Зарегистрируйтесь</a></p>
+                    <p>Или войдите через <a href="/admin/">админку</a></p>
+                    <p><a href="{% url 'calculator:home' %}">← Вернуться на главную</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

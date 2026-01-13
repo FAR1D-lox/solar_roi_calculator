@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card calculator-card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">📝 Регистрация</h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        
+                        {% if field.errors %}
+                        <div class="alert alert-danger mt-1">
+                            {% for error in field.errors %}
+                            <small>{{ error }}</small><br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <p>Уже есть аккаунт? <a href="{% url 'calculator:login' %}">Войдите</a></p>
+                    <p><a href="{% url 'calculator:home' %}">← Вернуться на главную</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>Зачем регистрироваться?</h5>
+                <ul>
+                    <li>📊 Сохранение истории всех расчётов</li>
+                    <li>📈 Сравнение разных конфигураций оборудования</li>
+                    <li>🔔 Персонализированные рекомендации</li>
+                    <li>💾 Доступ к расчётам с любого устройства</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

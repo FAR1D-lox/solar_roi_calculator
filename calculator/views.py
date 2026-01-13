@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Avg, Sum
-from .forms import SolarCalculationForm
 from .models import Calculation, SolarPanel, Region
 from .services.calculator import SolarROICalculator
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
+from .forms import UserRegistrationForm, SolarCalculationForm
 
 
 def home(request):
@@ -100,3 +103,63 @@ def history(request):
         'title': 'История расчётов'
     }
     return render(request, 'calculator/history.html', context)
+
+
+def register(request):
+    """Регистрация нового пользователя."""
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'✅ Регистрация прошла успешно! Добро пожаловать, {username}!')
+                return redirect('calculator:home')
+    else:
+        form = UserRegistrationForm()
+
+    context = {
+        'form': form,
+        'title': 'Регистрация'
+    }
+    return render(request, 'calculator/register.html', context)
+
+
+def user_login(request):
+    """Страница входа для обычных пользователей."""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'✅ Вы вошли как {username}')
+                return redirect('calculator:home')
+            else:
+                messages.error(request, 'Неверное имя пользователя или пароль')
+        else:
+            messages.error(request, 'Неверное имя пользователя или пароль')
+    else:
+        form = AuthenticationForm()
+
+    context = {
+        'form': form,
+        'title': 'Вход в систему'
+    }
+    return render(request, 'calculator/login.html', context)
+
+
+def user_logout(request):
+    """Выход из системы."""
+    from django.contrib.auth import logout
+    logout(request)
+    messages.info(request, 'Вы вышли из системы')
+    return redirect('calculator:home')
