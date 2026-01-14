@@ -90,6 +90,22 @@
                     </div>
                     {% endif %}
                 </div>
+
+                {% if result.solar_data_source %}
+                <div class="alert alert-info mt-3">
+                    <small>
+                        <strong>📡 Источник данных:</strong>
+                        {{ result.solar_data_source }}
+                        {% if result.api_status == 'success' %}
+                        (реальные данные NASA)
+                        {% elif result.api_status == 'fallback' %}
+                        (кешированные данные)
+                        {% endif %}
+                        {{ result.real_sun_hours }} солнечных часов/год
+                    </small>
+                </div>
+                {% endif %}
+
                 {% endif %}
             </div>
         </div>

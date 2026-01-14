@@ -4,7 +4,7 @@ from io import BytesIO
 import base64
 
 class SolarROICalculator:
-    """Основной калькулятор окупаемости. Использует pandas и matplotlib (соответствует ТЗ)."""
+    """Основной калькулятор окупаемости."""
 
     def __init__(self, panel, panel_count, region, monthly_consumption):
         self.panel = panel
@@ -12,14 +12,31 @@ class SolarROICalculator:
         self.region = region
         self.monthly_consumption = monthly_consumption
 
+        from .api_client import EnergyDataClient
+        self.api_client = EnergyDataClient()
+
     def calculate(self):
         """Основной метод расчета. Возвращает словарь с результатами и графиком."""
 
         total_power_w = self.panel.power_w * self.panel_count
         total_power_kw = total_power_w / 1000
 
-        # Годовая выработка (кВт*ч): мощность * солнечные_часы * КПД
-        yearly_production_kwh = total_power_kw * self.region.avg_sun_hours * self.panel.efficiency
+        from .api_client import EnergyDataClient
+        api_client = EnergyDataClient()
+
+        # Данные по солнечной инсоляции из NASA API
+        solar_data = api_client.get_solar_irradiance(
+            latitude=self.region.latitude,
+            longitude=self.region.longitude
+        )
+
+        real_sun_hours = solar_data['annual_sun_hours']
+
+        data_source = solar_data.get('source', 'unknown')
+        print(f"[SolarCalculator] Используем {real_sun_hours} солнечных часов/год (источник: {data_source})")
+
+        # Годовая выработка: Мощность * солнечные часы в год * КПД
+        yearly_production_kwh = total_power_kw * real_sun_hours * self.panel.efficiency
 
         # Годовая экономия (руб.): выработка * дневной тариф
         yearly_saving = yearly_production_kwh * float(self.region.tariff_day)
