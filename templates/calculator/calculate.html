@@ -106,6 +106,63 @@
                 </div>
                 {% endif %}
 
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>📊 Покрытие потребления</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ result.coverage_percentage }}%">
+                                        {{ result.coverage_percentage }}%
+                                    </div>
+                                </div>
+                                <p><strong>Покрытие потребления:</strong> {{ result.coverage_percentage }}%</p>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Годовое потребление:</span>
+                                        <strong>{{ result.yearly_consumption_kwh }} кВт·ч</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Выработка системы:</span>
+                                        <strong>{{ result.yearly_production_kwh }} кВт·ч</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Эффективная выработка:</span>
+                                        <strong>{{ result.effective_production_kwh }} кВт·ч</strong>
+                                    </li>
+                                    {% if result.excess_production_kwh > 0 %}
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Излишки (можно продавать):</span>
+                                        <strong class="text-success">{{ result.excess_production_kwh }} кВт·ч</strong>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {% if result.coverage_percentage < 100 %}
+                        <div class="alert alert-warning mt-3">
+                            <strong>💡 Совет:</strong> Система покрывает {{ result.coverage_percentage }}% вашего потребления.
+                            {% if result.coverage_percentage < 70 %}
+                            Увеличьте количество панелей для полного покрытия.
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success mt-3">
+                            <strong>✅ Отлично!</strong> Система полностью покрывает ваше потребление!
+                            {% if result.excess_production_kwh > 0 %}
+                            Излишки {{ result.excess_production_kwh }} кВт·ч можно продавать по зелёному тарифу.
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
                 {% endif %}
             </div>
         </div>

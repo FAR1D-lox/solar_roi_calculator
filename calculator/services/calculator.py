@@ -35,17 +35,30 @@ class SolarROICalculator:
         data_source = solar_data.get('source', 'unknown')
         print(f"[SolarCalculator] Используем {real_sun_hours} солнечных часов/год (источник: {data_source})")
 
-        # Годовая выработка: Мощность * солнечные часы в год * КПД
+        # Годовая выработка системы (кВт·ч)
         yearly_production_kwh = total_power_kw * real_sun_hours * self.panel.efficiency
 
-        # Годовая экономия (руб.): выработка * дневной тариф
-        yearly_saving = yearly_production_kwh * float(self.region.tariff_day)
+        # Годовое потребление дома (кВт·ч)
+        yearly_consumption_kwh = self.monthly_consumption * 12
 
-        # Стоимость системы: панели + 30% на инвертор и монтаж
+        # ЭФФЕКТИВНАЯ выработка (не может превышать потребление)
+        effective_production_kwh = min(yearly_production_kwh, yearly_consumption_kwh)
+
+        # Процент покрытия потребления
+        coverage_percentage = (
+                    effective_production_kwh / yearly_consumption_kwh * 100) if yearly_consumption_kwh > 0 else 0
+
+        # Экономия ТОЛЬКО от использованной энергии
+        yearly_saving = effective_production_kwh * float(self.region.tariff_day)
+
+        # Стоимость системы
         system_cost = float(self.panel.price) * self.panel_count * 1.3
 
-        # Срок окупаемости (лет)
+        # Срок окупаемости
         payback_years = system_cost / yearly_saving if yearly_saving > 0 else 0
+
+        # Излишки производства (если есть)
+        excess_production_kwh = max(0, yearly_production_kwh - yearly_consumption_kwh)
 
         df_data = {
             'Параметр': ['Мощность системы', 'Годовая выработка', 'Годовая экономия', 'Срок окупаемости'],
@@ -69,7 +82,14 @@ class SolarROICalculator:
             'payback_years': round(payback_years, 1),
             'co2_saved_kg': round(yearly_production_kwh * 0.5, 0),  # упрощенный расчет CO2
             'calculation_df': results_df,
-            'roi_chart': roi_chart_base64
+            'roi_chart': roi_chart_base64,
+            'yearly_consumption_kwh': round(yearly_consumption_kwh, 0),
+            'effective_production_kwh': round(effective_production_kwh, 0),
+            'coverage_percentage': round(coverage_percentage, 1),
+            'excess_production_kwh': round(excess_production_kwh, 0),
+            'is_overproduction': yearly_production_kwh > yearly_consumption_kwh,
+            'solar_data_source': data_source,
+            'real_sun_hours': real_sun_hours,
         }
 
     def _generate_roi_chart(self, system_cost, yearly_saving, payback_years):
